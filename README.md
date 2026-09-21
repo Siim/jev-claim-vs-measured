@@ -2,18 +2,25 @@
 
 A post with ~400k views says TypeSafe's **Jev** is the fastest AI model ever built for trading,
 makes calibrated buy/sell decisions in under 100 ms, and shows how to build an HFT system on it.
-The article behind it contains no backtest, no P&L and no hit rate. So I ran the test.
-It cost **$1.00** of API credit. Everything needed to check me is in this repository.
+The article behind it contains no backtest, no P&L and no hit rate. So I ran the tests: on the raw
+tape at one decision per second, and at 15–60 minute horizons. It cost **$0.97** of API credit.
+Everything needed to check me is in this repository.
 
 ![claim vs measured](card/jev_claim_vs_measured.png)
 
 | the claim | what I measured | reproduce with |
 |---|---|---|
-| Calibrated buy/sell decisions | Mean P(up) **0.45** while price rose **50.1%** of the time. **7,013 SELL vs 3,312 BUY** states out of 15,625 symmetric ones. AUC **0.48** | `04_eval_t3_scalping.py`, `03_enumerate_t3_states.py` |
-| Decisions in under 100 ms | Sequential, warm connection from the EU: median **294 ms**, p99 **447 ms**. Under load, 20,060 calls: median 301 ms, **0.00% under 100 ms** | `06_latency_from_cache.py`, `01_probe_latency_determinism.py` |
-| Hedge-fund-grade HFT | **298,549 trades**, 6 Binance majors, 2024-01 → 2026-06: hit rate **48.4%**, gross **−0.30 bp/trade** (15 min), −0.47 bp (60 min), against **~8–10 bp** of round-trip costs. Worse than a coin flip, before fees (z = −3.9 vs a time-shift null). Independent replication on freshly rebuilt data: 48.6%, −0.16 bp | `04_eval_t3_scalping.py` |
-| Feed it dense numeric state | The vendor's own docs say the model is weak at numeric precision and recommend named buckets. So that is what it was given | `jev/states.py`, `method/METHOD.md` |
-| (the inputs) | A fitted XGBoost on the same six features makes between **−0.3 and +0.5 bp/trade** out of sample, depending on the run. The inputs are empty too | `04_eval_t3_scalping.py` |
+| Calibrated buy/sell decisions | Mean P(up) **0.44–0.45** while price rose **50%** of the time. On perfectly symmetric inputs it says SELL far more often than BUY: **7,013 vs 3,312** states (15-min test), **4,665 vs 827** (tape test) | `03_…`, `08_…` |
+| Decisions in under 100 ms | Sequential, warm connection from the EU: median **294 ms**, p99 447 ms. Under load, 35,685 calls: median 295 ms, **0.00% under 100 ms** | `06_…`, `01_…` |
+| HFT — on the raw tape, one decision per second | **298,787 decisions** on 50-trade bars, BTC + ETH, 5 days. It is right **53.4%** of the time one second later and grosses **+0.04 bp/trade** (58.7% and +0.16 bp with *zero* latency). A one-line rule — follow the last 50 trades when their flow is extreme — is right **58.1%**. Fees are **4–10 bp** | `09_eval_tape.py` |
+| …and at 15–60 minutes | **298,549 trades**, 6 Binance majors, 2.5 years: right **48.4%** of the time, gross **−0.30 bp/trade**. Replication on rebuilt data: 48.6%, −0.16 bp | `04_eval_t3_scalping.py` |
+| (any model at all) | A predictor that is **never wrong** would gross **1.0 bp** at 1 s, **3.8 bp** at 12 s, **8.7 bp** at 1 min. Taker fees are 10 bp round trip. Directional "HFT" at retail fees loses money with a crystal ball | `09_eval_tape.py` |
+| (the inputs) | A fitted XGBoost on the same features ties the one-line rule on the tape and finds nothing at 15–60 minutes | `04_…`, `09_…` |
+
+**Read the two HFT rows together.** At one-second scale order flow genuinely continues for a moment, and
+the model's one strong rule is "follow aggressive flow", so it is right more often than not there — and
+still earns a hundredth of the fees, and still loses to one line of code. At 15–60 minutes that effect is
+gone and it is slightly worse than a coin flip. Neither is a trading edge.
 
 **Fair is fair.** On text the model is good: **99.3%** accurate on exchange announcement titles when
 its confidence is ≥ 0.8 (1,145 of 1,313 labelled titles; 88.2% with no gating), and several of its
@@ -21,7 +28,7 @@ its confidence is ≥ 0.8 (1,145 of 1,313 labelled titles; 88.2% with no gating)
 
 ## Verify it in two minutes — no API key needed
 
-Every model response used here is in `data/jev_cache.sqlite` (20,060 responses), keyed by a hash of
+Every model response used here is in `data/jev_cache.sqlite` (35,685 responses), keyed by a hash of
 the exact request. The scripts read the cache and make **zero API calls**.
 
 ```bash
@@ -30,14 +37,16 @@ pip install -r requirements.txt
 python 03_enumerate_t3_states.py   # rebuilds the model's full 15,625-row decision table from the cache
 python 04_eval_t3_scalping.py      # the scalping test: hit rate, bp/trade, AUC, null, XGBoost ceiling
 python 05_t4_text_triage.py        # the text test: 99.3% at confidence >= 0.8
-python 06_latency_from_cache.py    # latency of all 20,060 recorded calls
+python 06_latency_from_cache.py    # latency of all 35,685 recorded calls
+python 08_enumerate_tape_states.py # the model's 15,625-row decision table for the tape test
+python 09_eval_tape.py             # the tape test: hit rate, bp/trade, one-line rule, XGBoost, perfect-oracle bound
 ```
 
 Expected output of each script is in `results/`.
 
-## Don't trust my cache? Re-price it yourself (~$0.56)
+## Don't trust my cache? Re-price it yourself (~$1)
 
-Delete `data/jev_cache.sqlite`, set `TYPESAFE_API_KEY`, and run 03 and 05 again. The model is not
+Delete `data/jev_cache.sqlite`, set `TYPESAFE_API_KEY`, and run 03, 05 and 08 again. The model is not
 deterministic (identical requests differ by about ±0.02), so your table will differ in the second
 decimal and your trade count by a little; the conclusions will not. `01_probe_latency_determinism.py`
 measures latency and determinism from your own location for about a cent.
@@ -45,9 +54,13 @@ measures latency and determinism from your own location for about a cent.
 ## Don't trust my market data? Rebuild it from Binance and re-run the test
 
 ```bash
-python 02_build_t3_from_binance.py          # streams ~170 MB from data.binance.vision, 10-20 min, no key
+python 07_build_tape_50tick.py              # raw trades -> 50-trade bars, ~180 MB streamed, ~3 min, no key
+python 09_eval_tape.py --rebuilt            # the tape test on the inputs you just built (they come out identical)
+python 02_build_t3_from_binance.py          # the 15-60 minute inputs, ~170 MB streamed, 10-20 min, no key
 python 04_eval_t3_scalping.py --rebuilt     # the same test on the inputs you just built
 ```
+
+For the 15–60 minute test:
 
 | | primary run (shipped inputs) | replication (rebuilt from the archive, 2026-09-21) |
 |---|---|---|
@@ -77,18 +90,20 @@ than a copy. Both runs say the same thing.
 2. Six features × five levels = 15,625 possible states. Each was priced once. That table **is** the
    model's trading behaviour on these inputs, and you can read it: with everything neutral it says
    P(up) = 0.42 and "wait"; its one strong rule is "follow aggressive taker flow".
-3. A decision every 15 minutes on six liquid perpetuals for 2.5 years; entry **one bar late**;
-   frozen rule: act when |P(buy) − P(sell)| ≥ 0.25.
+3. Tape test: 15.5 million raw trades → bars of 50 trades (~1 s). 15–60 minute test: a decision every
+   15 minutes on six liquid perpetuals for 2.5 years. Entry **one bar late** in both (the tape test also
+   reports zero latency, the model's best case); frozen rule: act when |P(buy) − P(sell)| ≥ 0.25.
 4. Wording, rule, horizons, null and pass bar were fixed before any output met any outcome.
    One wording, one run.
 
 ## Scope — what this does and does not show
 
-- It shows that **jev-1.13.0, asked for direction on bucketed market state, has no edge at 15–60
-  minute horizons on liquid Binance perpetuals**, and that its probabilities are not calibrated to
-  market outcomes (its calibration is for the semantic judgments it was trained on).
-- It does **not** test per-block decisions on on-chain order books, which is the venue the article
-  points to. The article offers no evidence for those either; the burden is on the claim.
+- It shows that **jev-1.13.0, asked for direction on bucketed market state, has no tradeable edge on
+  liquid Binance perpetuals from one second to one hour**, that where it is right more often than not
+  (tick scale) a one-line rule is better, and that its probabilities are not calibrated to market
+  outcomes (its calibration is for the semantic judgments it was trained on).
+- It does **not** test on-chain order books, which is the venue the article points to; the tape test
+  is the closest public, reproducible equivalent (one decision per second on the busiest perpetuals). The article offers no evidence for those either; the burden is on the claim.
 - Prices are a 5-minute mark-price proxy, not fills, and Binance's own relabelling shows the stamps
   are only good to about one bar. With a gross edge that is negative, neither distinction can help the model.
 - If the vendor or the author publishes real results on a real venue, I will link them here.
@@ -96,11 +111,14 @@ than a copy. Both runs say the same thing.
 ## Files
 
 ```
-jev/states.py            frozen wording: features, levels, questions
+jev/states.py            frozen wording, 15-60 minute test and text test
+jev/states_tape.py       frozen wording, tape test
 jev/jev_client.py        ~100-line cached client (key only needed on a cache miss)
 data/t3_levels.parquet   bucketed features at 523,736 decision stamps
 data/t3_outcomes.parquet forward returns (bp), entry one bar late
 data/t3_table.parquet    the model's answers for all 15,625 states
+data/t5_tape_levels.parquet  298,787 tape decision bars: bucketed features + forward returns
+data/t5_table.parquet    the model's answers for all 15,625 tape states
 data/announcement_titles.parquet, data/t4_triage_labels.parquet   text test
 data/jev_cache.sqlite    every model response (hash -> answers, tokens, latency)
 results/                 captured output of every script, incl. the replication on rebuilt data

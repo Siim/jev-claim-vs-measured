@@ -1,0 +1,3 @@
+rebuilt table identical to the shipped one: True
+15625 states priced, fresh API calls 0
+wants to act in 5492 states: BUY 827  SELL 4665   mean P(up after 50 trades) 0.442

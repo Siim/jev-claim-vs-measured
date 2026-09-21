@@ -11,24 +11,25 @@ h1{font-size:50px;line-height:1.04;font-weight:800;letter-spacing:-.02em}
 .meta b{color:var(--ink)}
 .head,.row{display:grid;grid-template-columns:430px 1fr;column-gap:40px}
 .head{padding:14px 0 10px;font-size:16px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.row{padding:17px 0;border-top:1px solid var(--rule);align-items:center}
-.claim{font-size:28.5px;line-height:1.2;color:var(--muted);font-weight:500}
+.row{padding:12px 0;border-top:1px solid var(--rule);align-items:center}
+.claim{font-size:26px;line-height:1.2;color:var(--muted);font-weight:500}
 .claim s{text-decoration-color:var(--hit);text-decoration-thickness:3px}
-.meas{font-size:27px;line-height:1.3;font-weight:500}
+.meas{font-size:24.5px;line-height:1.28;font-weight:500}
 .n{font-family:"SF Mono",Menlo,monospace;font-weight:700;color:var(--hit);font-size:.97em;white-space:nowrap}
-.sub{color:var(--muted);font-size:21.5px;font-weight:400}
+.sub{color:var(--muted);font-size:20px;font-weight:400}
 .foot{margin-top:auto;margin-left:-64px;margin-right:-64px;padding:18px 64px 20px;background:var(--band);display:grid;grid-template-columns:1fr 560px;column-gap:48px;align-items:center}
 .fair{font-size:22px;line-height:1.32}.fair b{color:var(--good)}.fair .g{font-family:"SF Mono",Menlo,monospace;font-weight:700;color:var(--good)}
 .scope{font-size:16.5px;line-height:1.4;color:var(--muted)}
 </style></head><body><div class="wrap">
 <div class="top"><div><div class="eyebrow">I ran the test the article skips</div><h1>Jev for trading: claim vs. measured</h1></div>
-<div class="meta"><b>35,935</b> API calls · <b>$1.00</b> total<br>model jev-1.13.0 · pre-registered · Sept 2026</div></div>
+<div class="meta"><b>$0.97</b> of API calls · every response published<br>model jev-1.13.0 · pre-registered · Sept 2026</div></div>
 <div class="head"><div>The claim</div><div>What I measured</div></div>
-<div class="row"><div class="claim"><s>Calibrated</s> buy/sell decisions</div><div class="meas">Average P(up) <span class="n">0.45</span> — prices actually rose <span class="n">50.1%</span> of the time. <span class="n">2:1</span> sell bias across all 15,625 states. AUC <span class="n">0.48</span>.</div></div>
-<div class="row"><div class="claim">Decisions in <s>under 100 ms</s></div><div class="meas">Median <span class="n">294 ms</span>, p99 <span class="n">447 ms</span> from the EU. <span class="sub">The article’s own body says 70–500 ms.</span></div></div>
-<div class="row"><div class="claim">Hedge-fund-grade <s>HFT</s></div><div class="meas"><span class="n">298,549</span> trades on 6 Binance majors, 2024-01 → 2026-06: hit rate <span class="n">48.4%</span>.<br>Gross <span class="n">−0.30 bp</span>/trade against <span class="n">~8–10 bp</span> of round-trip costs. <span class="sub">(15-min holds; 60-min: −0.47 bp)</span></div></div>
-<div class="row"><div class="claim">Feed it dense numeric market state</div><div class="meas">The vendor’s own docs say the model is weak at numeric precision and tell you to pass named buckets instead. <span class="sub">So I did.</span></div></div>
-<div class="row"><div class="claim">Evidence shown in the article</div><div class="meas"><span class="n">0</span> backtests · <span class="n">0</span> P&amp;L · <span class="n">0</span> hit rates. <span class="sub">A fitted XGBoost on the same inputs: +0.2–0.5 bp/trade. The inputs are empty too.</span></div></div>
+<div class="row"><div class="claim"><s>Calibrated</s> buy/sell decisions</div><div class="meas">Average P(up) <span class="n">0.44–0.45</span> while prices rose <span class="n">50%</span> of the time. On perfectly symmetric inputs it says SELL <span class="n">2–6×</span> more often than BUY.</div></div>
+<div class="row"><div class="claim">Decisions in <s>under 100 ms</s></div><div class="meas">Median <span class="n">295 ms</span>, p99 <span class="n">416 ms</span> over 35,685 calls from the EU. Share under 100 ms: <span class="n">0.00%</span>. <span class="sub">The article’s own body says 70–500 ms.</span></div></div>
+<div class="row"><div class="claim"><s>HFT</s> — on the raw tape,<br>one decision per second</div><div class="meas"><span class="n">298,787</span> decisions on 50-trade bars (BTC, ETH). Right <span class="n">53.4%</span> of the time one second later: <span class="n">+0.04 bp</span> per trade. A one-line “follow the last 50 trades” rule is right <span class="n">58.1%</span>. Fees: <span class="n">4–10 bp</span>.</div></div>
+<div class="row"><div class="claim">…and at 15–60 minutes</div><div class="meas"><span class="n">298,549</span> trades on 6 Binance majors over 2.5 years: right <span class="n">48.4%</span> of the time, <span class="n">−0.30 bp</span> per trade. <span class="sub">Replication on rebuilt data: 48.6%, −0.16 bp.</span></div></div>
+<div class="row"><div class="claim">What a <b style="color:var(--ink)">perfect</b> predictor would make</div><div class="meas">Never wrong, it would gross <span class="n">1.0 bp</span> at 1 s, <span class="n">3.8 bp</span> at 12 s, <span class="n">8.7 bp</span> at 1 min. Taker fees are <span class="n">10 bp</span>. <span class="sub">At retail fees this loses money with a crystal ball.</span></div></div>
+<div class="row"><div class="claim">Evidence shown in the article</div><div class="meas"><span class="n">0</span> backtests · <span class="n">0</span> P&amp;L · <span class="n">0</span> hit rates.</div></div>
 <div class="foot"><div class="fair"><b>Fair is fair:</b> on text it is good — <span class="g">99.3%</span> accurate on exchange announcements when confident (≥ 0.8: 1,145 of 1,313 labelled titles). A solid, cheap text classifier. Not a price oracle.</div>
-<div class="scope">Scope: Binance USD-M perps; state bucketed into anonymous plain-English levels (no dates, symbols or prices); entry one bar late; shuffled nulls. Not tested: per-block on-chain order books — the article shows no evidence for those either.</div></div>
+<div class="scope">Scope: Binance USD-M perps; state given as anonymous plain-English levels, as the vendor’s docs advise (no dates, symbols or prices); entry one bar late; time-shift nulls; rules fixed before outcomes. Not tested: on-chain order books — the article shows no evidence for those either.</div></div>
 </div></body></html>

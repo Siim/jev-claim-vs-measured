@@ -46,6 +46,24 @@ README and script 02); the replication on a fresh rebuild is reported next to th
 Time bars, not dollar/volume bars. Prices are open-interest value / open interest sampled every
 five minutes, which is a mark-price proxy, not a tradeable fill.
 
+## Tape test (T5)
+
+- Data: every aggregated trade on BTCUSDT and ETHUSDT USD-M perpetuals, 2026-09-14..18 (the five most
+  recent complete weekdays when the test was written; 15.5 million trades). Bar = 50 consecutive trades,
+  median length 1.15 s. Trailing windows reset each day; the first 1,000 bars of a day only warm them up.
+- Features (percentile vs the trailing 2,000 bars, cut 10/30/70/90): signed taker flow of the last bar and
+  of the last 20 bars, return of the last bar and of the last 100 bars, tape speed, realised volatility.
+- Questions: P(price higher after the next 50 trades), P(higher after the next 500), buy / sell / wait.
+- Entry L0 = the decision bar's close (zero latency: what a lookup table could do). Entry L1 = one bar
+  later, about a second: a live API call at 0.3-0.5 s plus an order. Exits 1, 10 and 50 bars after entry.
+- Hit rate is over non-flat outcomes. BTC's spread is one tick (~0.01 bp), so trade prices are an adequate
+  mid-price proxy and bid-ask bounce is negligible.
+- Baselines on identical bars: a one-line rule (follow the last bar's flow when it is in its top or bottom
+  decile), an XGBoost fitted on days 1-3 and read on days 4-5, and a perfect oracle (mean absolute move).
+- Pass bar, fixed in advance: gross > 4.0 bp/trade at L1 (the cheapest conceivable retail round trip),
+  on both symbols. Recorded expectation, also in advance: above 50% at one bar because trade-sign
+  autocorrelation is real, no better than the one-line rule, and short of fees by 10x or more.
+
 ## Text test (T4)
 
 4,435 unique Binance announcement titles since 2022. One request per title: a closed-set event
