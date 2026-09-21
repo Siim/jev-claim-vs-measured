@@ -1,0 +1,14 @@
+  BTCUSDT    2026-09-14: 1,356,645 trades ->  25,982 decision bars, median bar   1.62 s
+  BTCUSDT    2026-09-15: 1,900,165 trades ->  36,853 decision bars, median bar   0.62 s
+  BTCUSDT    2026-09-16: 1,608,203 trades ->  31,014 decision bars, median bar   0.84 s
+  BTCUSDT    2026-09-17:   998,288 trades ->  18,815 decision bars, median bar   2.15 s
+  BTCUSDT    2026-09-18: 1,651,675 trades ->  31,883 decision bars, median bar   0.97 s
+  ETHUSDT    2026-09-14: 1,426,754 trades ->  27,385 decision bars, median bar   1.86 s
+  ETHUSDT    2026-09-15: 1,870,704 trades ->  36,264 decision bars, median bar   0.94 s
+  ETHUSDT    2026-09-16: 1,733,201 trades ->  33,514 decision bars, median bar   0.86 s
+  ETHUSDT    2026-09-17: 1,104,383 trades ->  20,937 decision bars, median bar   2.35 s
+  ETHUSDT    2026-09-18: 1,864,537 trades ->  36,140 decision bars, median bar   1.22 s
+
+decision bars 298,787; median bar 1.15 s
+distinct states that occur: 10,606 of 15,625
+rebuilt file identical to the shipped one (levels and forward returns): True

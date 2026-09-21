@@ -1,0 +1,38 @@
+inputs: data/tape_alts_levels.parquet
+
+gross = average profit per trade in bp before any cost, holding 1 / 10 / 50 bars; right% is for a 1-bar hold
+coin       bars  bar s  spread |       ORACLE 1/10/50 | MODEL right%          gross 1/10/50   z(1)  z(10) | RULE right%          gross 1/10/50 |   FITTED gross 1/10/50 | taker cost
+BTC     144,547    1.0    0.29 |   0.72   3.13   7.33 |        56.23  +0.068  +0.148  +0.131  +13.3   +3.7 |       68.45  +0.299  +0.621  +0.660 |  +0.264  +0.354  +0.349 |    10.3 bp
+ETH     154,240    1.3    0.36 |   1.14   4.31   9.94 |        52.20  +0.050  +0.109  -0.088   +7.7   +2.2 |       57.21  +0.251  +0.400  +0.382 |  +0.216  +0.331  +0.083 |    10.4 bp
+ZEC     294,046    0.8    1.16 |   2.07   7.54  17.55 |        52.40  +0.110  +0.287  -0.035  +12.4   +5.1 |       57.93  +0.538  +1.229  +1.136 |  +0.579  +1.132  +0.936 |    11.2 bp
+SOL      27,036   11.0    0.99 |   3.07  10.54  23.62 |        50.64  -0.036  -0.343  -1.383   -0.4   -0.5 |       51.45  +0.021  +0.061  -0.680 |  -0.062  -0.446  -0.693 |    11.0 bp
+AKE     255,792    0.4    6.28 |   8.18  29.00  65.33 |        50.26  +0.240  +0.242  -1.192   +6.8   +1.5 |       53.18  +1.418  +3.108  +3.340 |  +1.470  +3.103  +2.614 |    16.3 bp
+XRP      32,063    8.7    0.77 |   3.93  13.41  30.03 |        50.89  +0.043  +0.410  +1.984   +0.9   +1.2 |       50.42  -0.012  -0.180  +0.465 |  +0.008  +0.083  +3.783 |    10.8 bp
+ONDO      3,373   30.5    2.73 |  10.22  32.97  76.17 |        48.08  -0.720  -8.309 -36.031   -0.8   -1.7 |       47.03  -0.572  +0.476  +5.544 |  -0.783  -2.083  +2.472 |    12.7 bp
+ZIL       1,232   too thin for the procedure fixed in advance (1,000 bars a day are needed to warm up) -> not evaluated
+FLOCK    13,545    8.5    5.54 |  12.66  41.36  93.27 |        50.03  -0.185  +2.332 +13.668   -0.3   +2.6 |       50.37  +0.022  -0.103  +3.869 |  +0.461  +2.740  +6.237 |    15.5 bp
+GUN           0   too thin for the procedure fixed in advance (1,000 bars a day are needed to warm up) -> not evaluated
+
+The one-line rule out-earns the model on 7 of 8 coins at a 1-bar hold, and on 6 of 8 at 10 bars.
+Where would a PERFECT predictor beat taker costs? BTC: never; ETH: never; ZEC: from 50 bars; SOL: from 50 bars; AKE: from 10 bars; XRP: from 10 bars; ONDO: from 10 bars; FLOCK: from 10 bars
+
+RULE FIXED IN ADVANCE: the model must gross more than 4.0 bp per trade on at least 4 of the 8 alts.
+Alts where it does: 1 -> FAIL
+
+HEADLINE NUMBERS
+  decisions = 925874
+  coins_evaluated = 8
+  rule_beats_model_at_1_bar = 7
+  alts_clearing_4bp = 1
+  BTC_model_hit_pct = 56.23
+  BTC_model_gross_10_bp = 0.148
+  BTC_rule_gross_10_bp = 0.621
+  ZEC_model_hit_pct = 52.4
+  ZEC_model_gross_10_bp = 0.287
+  ZEC_rule_gross_10_bp = 1.229
+  AKE_model_hit_pct = 50.26
+  AKE_model_gross_10_bp = 0.242
+  AKE_rule_gross_10_bp = 3.108
+  SOL_model_hit_pct = 50.64
+  SOL_model_gross_10_bp = -0.343
+  SOL_rule_gross_10_bp = 0.061

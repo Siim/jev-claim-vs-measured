@@ -1,0 +1,56 @@
+
+01_latency_from_cache.py
+   ok   api_calls                            published      35685   measured      35685
+   ok   median_latency_ms                    published        295   measured        295
+   ok   share_under_100ms_pct                published          0   measured          0
+
+11_intraday_price_all_states.py
+   ok   states                               published      15625   measured      15625
+   ok   buy_states                           published       3312   measured       3312
+   ok   sell_states                          published       7013   measured       7013
+   ok   mean_p_up_15m                        published       0.45   measured       0.45
+
+12_intraday_evaluate.py
+   ok   decisions                            published     523361   measured     523361
+   ok   trades_ret_15m_bp                    published     298549   measured     298549
+   ok   hit_rate_pct_ret_15m_bp              published      48.37   measured      48.37
+   ok   gross_bp_ret_15m_bp                  published     -0.304   measured     -0.304
+   ok   gross_bp_ret_60m_bp                  published     -0.467   measured     -0.467
+   ok   auc_ret_15m_bp                       published     0.4805   measured     0.4805
+   ok   null_z_ret_15m_bp                    published      -3.88   measured      -3.88
+   ok   fitted_model_gross_bp_ret_15m_bp     published      0.176   measured      0.176
+   ok   fitted_model_gross_bp_ret_60m_bp     published      0.533   measured      0.533
+
+21_tape_price_all_states.py
+   ok   states                               published      15625   measured      15625
+   ok   buy_states                           published        827   measured        827
+   ok   sell_states                          published       4665   measured       4665
+
+22_tape_evaluate.py
+   ok   decisions                            published     298787   measured     298787
+   ok   model_hit_pct_delay1_hold1           published       53.4   measured       53.4
+   ok   model_gross_bp_delay1_hold1          published       0.04   measured       0.04
+   ok   model_gross_bp_delay1_hold10         published      0.077   measured      0.077
+   ok   model_hit_pct_delay0_hold1           published      58.73   measured      58.73
+   ok   rule_hit_pct_delay1_hold1            published      58.07   measured      58.07
+   ok   oracle_bp_delay1_hold1               published       1.01   measured       1.01
+   ok   oracle_bp_delay1_hold10              published        3.8   measured        3.8
+   ok   oracle_bp_delay1_hold50              published       8.73   measured       8.73
+
+31_tape_alts_evaluate.py
+   ok   decisions                            published     925874   measured     925874
+   ok   coins_evaluated                      published          8   measured          8
+   ok   rule_beats_model_at_1_bar            published          7   measured          7
+   ok   alts_clearing_4bp                    published          1   measured          1
+   ok   BTC_model_hit_pct                    published      56.23   measured      56.23
+   ok   AKE_model_gross_10_bp                published      0.242   measured      0.242
+   ok   AKE_rule_gross_10_bp                 published      3.108   measured      3.108
+
+40_text_triage.py
+   ok   titles                               published       4435   measured       4435
+   ok   checkable_titles                     published       1313   measured       1313
+   ok   accuracy_pct                         published       88.2   measured       88.2
+   ok   kept_at_0.8                          published       1145   measured       1145
+   ok   accuracy_pct_at_0.8                  published       99.3   measured       99.3
+
+ALL PUBLISHED NUMBERS REPRODUCED

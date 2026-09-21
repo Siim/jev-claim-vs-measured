@@ -1,0 +1,57 @@
+inputs: data/tape_levels.parquet
+decision bars 298,787  (BTC 144,547, ETH 154,240)
+median bar 1.15 s, so holding 1 / 10 / 50 bars is about 1 s / 12 s / 58 s
+the model wants to act on 34.1% of bars (BUY 8.7%, SELL 25.4%); its average P(up) is 0.437
+
+right % = hit rate over non-flat outcomes; gross = average profit per trade in bp, before any cost
+entry      hold     |  ORACLE | MODEL right%    gross      z | ONE-LINE RULE right%    gross | FITTED right%    gross
+no delay   1 bar    |    1.01 |        58.73   +0.155  +35.0 |                72.49   +0.478 |         73.84   +0.553
+no delay   10 bars  |    3.80 |        53.45   +0.229   +6.8 |                56.71   +0.660 |         56.92   +0.693
+no delay   50 bars  |    8.73 |        51.71   +0.129   +1.5 |                52.98   +0.637 |         52.92   +0.470
+1 bar late 1 bar    |    1.01 |        53.40   +0.040   +9.7 |                58.07   +0.123 |         57.74   +0.136
+1 bar late 10 bars  |    3.80 |        52.05   +0.077   +2.6 |                52.44   +0.177 |         51.68   +0.121
+1 bar late 50 bars  |    8.73 |        51.12   -0.029   +0.4 |                51.26   +0.156 |         50.39   -0.059
+
+the model, 1 bar late, by coin:
+   BTC: 1 bar: right 55.63%, gross +0.059 bp   10 bars: right 52.56%, gross +0.113 bp   50 bars: right 51.55%, gross +0.106 bp
+   ETH: 1 bar: right 51.21%, gross +0.021 bp   10 bars: right 51.55%, gross +0.042 bp   50 bars: right 50.70%, gross -0.161 bp
+
+AUC of P(up after 50 trades) against what happened, 1 bar late: 0.5461   (0.500 = coin flip)
+
+RULE FIXED IN ADVANCE: the model must gross more than 4.0 bp per trade, 1 bar late.
+Its best is +0.077 bp -> FAIL, short by a factor of 52.
+Even the perfect oracle grosses only 1.01 / 3.8 / 8.73 bp against 10 bp of taker costs.
+
+HEADLINE NUMBERS
+  decisions = 298787
+  oracle_bp_delay0_hold1 = 1.01
+  model_hit_pct_delay0_hold1 = 58.73
+  model_gross_bp_delay0_hold1 = 0.155
+  rule_hit_pct_delay0_hold1 = 72.49
+  rule_gross_bp_delay0_hold1 = 0.478
+  oracle_bp_delay0_hold10 = 3.8
+  model_hit_pct_delay0_hold10 = 53.45
+  model_gross_bp_delay0_hold10 = 0.229
+  rule_hit_pct_delay0_hold10 = 56.71
+  rule_gross_bp_delay0_hold10 = 0.66
+  oracle_bp_delay0_hold50 = 8.73
+  model_hit_pct_delay0_hold50 = 51.71
+  model_gross_bp_delay0_hold50 = 0.129
+  rule_hit_pct_delay0_hold50 = 52.98
+  rule_gross_bp_delay0_hold50 = 0.637
+  oracle_bp_delay1_hold1 = 1.01
+  model_hit_pct_delay1_hold1 = 53.4
+  model_gross_bp_delay1_hold1 = 0.04
+  rule_hit_pct_delay1_hold1 = 58.07
+  rule_gross_bp_delay1_hold1 = 0.123
+  oracle_bp_delay1_hold10 = 3.8
+  model_hit_pct_delay1_hold10 = 52.05
+  model_gross_bp_delay1_hold10 = 0.077
+  rule_hit_pct_delay1_hold10 = 52.44
+  rule_gross_bp_delay1_hold10 = 0.177
+  oracle_bp_delay1_hold50 = 8.73
+  model_hit_pct_delay1_hold50 = 51.12
+  model_gross_bp_delay1_hold50 = -0.029
+  rule_hit_pct_delay1_hold50 = 51.26
+  rule_gross_bp_delay1_hold50 = 0.156
+  model_trades = 101812

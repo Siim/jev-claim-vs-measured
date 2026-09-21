@@ -1,0 +1,42 @@
+inputs: data/rebuilt_intraday_levels.parquet + data/rebuilt_intraday_outcomes.parquet
+contracts ['BTC', 'ETH', 'XRP', 'BNB', 'DOGE', 'LTC']
+decisions 523,441   from 2024-01-01 00:00:00 to 2026-06-30 22:45:00
+typical move over 15 min: 24.5 bp
+typical move over 60 min: 48.4 bp
+the model's average P(up in 15 min) is 0.449; the price actually rose 50.2% of the time
+
+1. CAN IT TELL UP FROM DOWN?   (AUC: 0.500 = coin flip, 1.000 = perfect)
+   P(up) vs what happened over 15 min: AUC 0.4825
+   P(up) vs what happened over 60 min: AUC 0.4817
+
+2. THE TRADE RULE   (act when |P(buy) - P(sell)| >= 0.25; enter one 5-minute bar late)
+   holding 15 min:
+      whole period   298,437 trades   right 48.58% of the time   gross -0.157 bp/trade (t -1.63)   after maker costs -8.58   after taker costs -10.66
+      first half     149,114 trades   right 48.55% of the time   gross -0.238 bp/trade (t -1.56)   after maker costs -8.66   after taker costs -10.74
+      second half    149,323 trades   right 48.61% of the time   gross -0.075 bp/trade (t -0.70)   after maker costs -8.50   after taker costs -10.58
+      same decisions at the wrong time: +0.002 +/- 0.074 bp   ->   the real result is -2.15 standard deviations from that
+   holding 60 min:
+      whole period   298,437 trades   right 48.64% of the time   gross -0.324 bp/trade (t -1.25)   after maker costs -8.74   after taker costs -10.82
+      first half     149,114 trades   right 48.57% of the time   gross -0.595 bp/trade (t -1.41)   after maker costs -9.02   after taker costs -11.10
+      second half    149,323 trades   right 48.71% of the time   gross -0.053 bp/trade (t -0.28)   after maker costs -8.47   after taker costs -10.55
+      same decisions at the wrong time: -0.013 +/- 0.184 bp   ->   the real result is -1.69 standard deviations from that
+
+3. CEILING CHECK   (XGBoost FITTED on the first half, tested on the second, same six features)
+   holding 15 min: trading its top/bottom 10% of predictions grosses -0.311 bp/trade   (correlation of prediction with outcome: -0.0052)
+   holding 60 min: trading its top/bottom 10% of predictions grosses -0.272 bp/trade   (correlation of prediction with outcome: -0.0021)
+   Costs are 8.42-10.5 bp. These inputs do not predict the next 15-60 minutes.
+
+HEADLINE NUMBERS
+  decisions = 523441
+  auc_ret_15m_bp = 0.4825
+  auc_ret_60m_bp = 0.4817
+  trades_ret_15m_bp = 298437
+  hit_rate_pct_ret_15m_bp = 48.58
+  gross_bp_ret_15m_bp = -0.157
+  null_z_ret_15m_bp = -2.15
+  trades_ret_60m_bp = 298437
+  hit_rate_pct_ret_60m_bp = 48.64
+  gross_bp_ret_60m_bp = -0.324
+  null_z_ret_60m_bp = -1.69
+  fitted_model_gross_bp_ret_15m_bp = -0.311
+  fitted_model_gross_bp_ret_60m_bp = -0.272

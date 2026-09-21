@@ -1,0 +1,11 @@
+table identical to the shipped one: True
+states priced               15,625  (failed: 0, fresh API calls: 0)
+states where it would BUY   3,312
+states where it would SELL  7,013   <- the inputs are symmetric, the answers are not
+mean P(up in 15 min)        0.450   <- the true base rate is 0.50
+
+HEADLINE NUMBERS
+  states = 15625
+  buy_states = 3312
+  sell_states = 7013
+  mean_p_up_15m = 0.45

@@ -1,0 +1,11 @@
+API calls recorded          35,685
+latency, median             295 ms
+latency, 90th percentile    343 ms
+latency, 99th percentile    416 ms
+share of calls under 100 ms 0.00%
+input tokens                23,014,519  ->  $0.97
+
+HEADLINE NUMBERS
+  api_calls = 35685
+  median_latency_ms = 295
+  share_under_100ms_pct = 0.0

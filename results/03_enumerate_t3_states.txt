@@ -1,4 +1,0 @@
-rebuilt table identical to the shipped one: True
-15625 states priced, 0 failed, fresh API calls 0
-states where the model wants to act (|P(buy)-P(sell)| >= 0.25): 10325  ->  BUY 3312  SELL 7013
-mean P(up 15m) over all states 0.450   mean P(up 60m) 0.449

@@ -1,0 +1,11 @@
+table identical to the shipped one: True
+states priced               15,625  (failed: 0, fresh API calls: 0)
+states where it would BUY   827
+states where it would SELL  4,665   <- the inputs are symmetric, the answers are not
+mean P(up after 50 trades)  0.442   <- the true base rate is 0.50
+
+HEADLINE NUMBERS
+  states = 15625
+  buy_states = 827
+  sell_states = 4665
+  mean_p_up_50_trades = 0.442

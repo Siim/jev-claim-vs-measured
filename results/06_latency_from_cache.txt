@@ -1,2 +1,0 @@
-35,685 API calls   latency under load: p50 295 ms   p90 343   p99 416   max 1775   share under 100 ms: 0.00%
-input tokens 23,014,519  ->  $0.97 at $0.042 per million input tokens

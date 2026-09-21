@@ -2,7 +2,7 @@
 
 The test rules below were written down before any model output was joined to any market outcome
 (in a private research ledger; this is the part that concerns the published tests). The wording
-in `jev/states.py` was frozen at the same time and never edited: one wording, one run. Re-wording
+in `jev/wording_*.py` was frozen at the same time and never edited: one wording, one run. Re-wording
 a question after seeing results would be fitting the prompt to the data.
 
 ## Why the state is words, not numbers
@@ -17,7 +17,7 @@ A state is therefore a tuple of six levels and the model's decision function is 
 5^6 = 15,625 rows. It was priced once. A live system built this way would do a table lookup with
 zero latency, so the latency numbers here are about the API, not about what such a design needs.
 
-## Intraday test (T3)
+## The 15-60 minute test
 
 - Contracts: BTC, ETH, XRP, BNB, DOGE, LTC USD-M perpetuals — the six with the largest median
   open-interest value in 2023 among 22 long-listed majors (a liquidity rule; no outcome involved).
@@ -41,12 +41,12 @@ zero latency, so the latency numbers here are about the API, not about what such
 
 The primary run used inputs built from Binance's public archive as downloaded on 2026-07-29. The
 archive's timestamps for rows after about April 2025 have since been relabelled by -5 minutes (see the
-README and script 02); the replication on a fresh rebuild is reported next to the primary run.
+README and `10_intraday_rebuild_inputs.py`); the replication on a fresh rebuild is reported next to the primary run.
 
 Time bars, not dollar/volume bars. Prices are open-interest value / open interest sampled every
 five minutes, which is a mark-price proxy, not a tradeable fill.
 
-## Tape test (T5)
+## The tape test
 
 - Data: every aggregated trade on BTCUSDT and ETHUSDT USD-M perpetuals, 2026-09-14..18 (the five most
   recent complete weekdays when the test was written; 15.5 million trades). Bar = 50 consecutive trades,
@@ -64,7 +64,7 @@ five minutes, which is a mark-price proxy, not a tradeable fill.
   on both symbols. Recorded expectation, also in advance: above 50% at one bar because trade-sign
   autocorrelation is real, no better than the one-line rule, and short of fees by 10x or more.
 
-## Tape test on alts (T6)
+## The tape test on alts
 
 - Symbols by rule, not by hand: the 523 crypto alt USDT perpetuals trading on 2026-09-21 (BTC, ETH,
   stablecoins, index / equity / pre-market contracts excluded) ranked by 24-hour quote volume; ranks 1-4
@@ -79,7 +79,7 @@ five minutes, which is a mark-price proxy, not a tradeable fill.
   Recorded expectation: above 50% only where the tape is fast, below the one-line rule everywhere, and the
   perfect-oracle bound WOULD exceed fees on alts - so that sentence is scoped to BTC and ETH.
 
-## Text test (T4)
+## The text test
 
 4,435 unique Binance announcement titles since 2022. One request per title: a closed-set event
 type, a direction, and an impact score. Ground truth is a handful of regexes on the classes they

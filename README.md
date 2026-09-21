@@ -10,13 +10,13 @@ Everything needed to check me is in this repository.
 
 | the claim | what I measured | reproduce with |
 |---|---|---|
-| Calibrated buy/sell decisions | Mean P(up) **0.44–0.45** while price rose **50%** of the time. On perfectly symmetric inputs it says SELL far more often than BUY: **7,013 vs 3,312** states (15-min test), **4,665 vs 827** (tape test) | `03_…`, `08_…` |
-| Decisions in under 100 ms | Sequential, warm connection from the EU: median **294 ms**, p99 447 ms. Under load, 35,685 calls: median 295 ms, **0.00% under 100 ms** | `06_…`, `01_…` |
-| HFT — on the raw tape, one decision per second | **298,787 decisions** on 50-trade bars, BTC + ETH, 5 days. It is right **53.4%** of the time one second later and grosses **+0.04 bp/trade** (58.7% and +0.16 bp with *zero* latency). A one-line rule — follow the last 50 trades when their flow is extreme — is right **58.1%**. Fees are **4–10 bp** | `09_eval_tape.py` |
-| …and at 15–60 minutes | **298,549 trades**, 6 Binance majors, 2.5 years: right **48.4%** of the time, gross **−0.30 bp/trade**. Replication on rebuilt data: 48.6%, −0.16 bp | `04_eval_t3_scalping.py` |
-| …and on alts | Six alt perps picked by a volume-rank rule, **626k more decisions**: right **48–52%** of the time one bar late. The one-line rule beats it on **7 of 8** symbols (on the hot coin AKE: +3.3 bp vs +0.24 bp). Nothing clears even the 4 bp maker fee; taker costs there are 11–16 bp | `11_eval_tape_alts.py` |
-| (any model at all, on BTC and ETH) | A predictor that is **never wrong** would gross **1.0 bp** at 1 s, **3.8 bp** at 12 s, **8.7 bp** at 1 min. Taker fees are 10 bp round trip: on the two busiest coins, directional "HFT" at retail fees loses money with a crystal ball. (On alts moves are 3–10× larger and a perfect predictor *would* clear fees from about 10 bars; the model is nowhere near perfect there — see above) | `09_…`, `11_…` |
-| (the inputs) | A fitted XGBoost on the same features ties the one-line rule on the tape and finds nothing at 15–60 minutes | `04_…`, `09_…` |
+| Calibrated buy/sell decisions | Mean P(up) **0.44–0.45** while price rose **50%** of the time. On perfectly symmetric inputs it says SELL far more often than BUY: **7,013 vs 3,312** states (15-min test), **4,665 vs 827** (tape test) | `11_…`, `21_…` |
+| Decisions in under 100 ms | Sequential, warm connection from the EU: median **294 ms**, p99 447 ms. Under load, 35,685 calls: median 295 ms, **0.00% under 100 ms** | `01_…`, `00_…` |
+| HFT — on the raw tape, one decision per second | **298,787 decisions** on 50-trade bars, BTC + ETH, 5 days. It is right **53.4%** of the time one second later and grosses **+0.04 bp/trade** (58.7% and +0.16 bp with *zero* latency). A one-line rule — follow the last 50 trades when their flow is extreme — is right **58.1%**. Fees are **4–10 bp** | `22_tape_evaluate.py` |
+| …and at 15–60 minutes | **298,549 trades**, 6 Binance majors, 2.5 years: right **48.4%** of the time, gross **−0.30 bp/trade**. Replication on rebuilt data: 48.6%, −0.16 bp | `12_intraday_evaluate.py` |
+| …and on alts | Six alt perps picked by a volume-rank rule, **626k more decisions**: right **48–52%** of the time one bar late. The one-line rule beats it on **7 of 8** symbols (on the hot coin AKE: +3.3 bp vs +0.24 bp). Nothing clears even the 4 bp maker fee; taker costs there are 11–16 bp | `31_tape_alts_evaluate.py` |
+| (any model at all, on BTC and ETH) | A predictor that is **never wrong** would gross **1.0 bp** at 1 s, **3.8 bp** at 12 s, **8.7 bp** at 1 min. Taker fees are 10 bp round trip: on the two busiest coins, directional "HFT" at retail fees loses money with a crystal ball. (On alts moves are 3–10× larger and a perfect predictor *would* clear fees from about 10 bars; the model is nowhere near perfect there — see above) | `22_…`, `31_…` |
+| (the inputs) | A fitted XGBoost on the same features ties the one-line rule on the tape and finds nothing at 15–60 minutes | `12_…`, `22_…` |
 
 **Read the two HFT rows together.** At one-second scale order flow genuinely continues for a moment, and
 the model's one strong rule is "follow aggressive flow", so it is right more often than not there — and
@@ -27,7 +27,7 @@ gone and it is slightly worse than a coin flip. Neither is a trading edge.
 its confidence is ≥ 0.8 (1,145 of 1,313 labelled titles; 88.2% with no gating), and several of its
 "errors" are my regex being wrong. It is a solid, cheap, fast text classifier. It is not a price oracle.
 
-## Verify it in two minutes — no API key needed
+## Verify it in a few minutes — no API key needed
 
 Every model response used here is in `data/jev_cache.sqlite` (35,685 responses), keyed by a hash of
 the exact request. The scripts read the cache and make **zero API calls**.
@@ -35,33 +35,56 @@ the exact request. The scripts read the cache and make **zero API calls**.
 ```bash
 git clone https://github.com/Siim/jev-claim-vs-measured && cd jev-claim-vs-measured
 pip install -r requirements.txt
-python 03_enumerate_t3_states.py   # rebuilds the model's full 15,625-row decision table from the cache
-python 04_eval_t3_scalping.py      # the scalping test: hit rate, bp/trade, AUC, null, XGBoost ceiling
-python 05_t4_text_triage.py        # the text test: 99.3% at confidence >= 0.8
-python 06_latency_from_cache.py    # latency of all 35,685 recorded calls
-python 08_enumerate_tape_states.py # the model's 15,625-row decision table for the tape test
-python 09_eval_tape.py             # the tape test: hit rate, bp/trade, one-line rule, XGBoost, perfect-oracle bound
-python 11_eval_tape_alts.py        # the same test on six alts (plus BTC/ETH), per symbol
+
+python check_headline_numbers.py         # re-runs everything below and checks each published number (~8 min)
 ```
 
-Expected output of each script is in `results/`.
+or one experiment at a time:
+
+```bash
+python 12_intraday_evaluate.py           # 15-60 minutes: hit rate, bp/trade, AUC, null, fitted-model ceiling
+python 22_tape_evaluate.py               # the raw tape, one decision per second, vs a one-line rule and a perfect oracle
+python 31_tape_alts_evaluate.py          # the same on six alts, coin by coin
+python 40_text_triage.py                 # fair is fair: the text test, 99.3% when confident
+python 01_latency_from_cache.py          # latency of all 35,685 recorded calls
+python 11_intraday_price_all_states.py   # the model's complete 15,625-row decision table (15-60 minute test)
+python 21_tape_price_all_states.py       # ... and for the tape tests
+```
+
+Each script starts with a plain-English description of what it does and why. The expected output of
+every script is in `results/`.
+
+## Reading the code
+
+The experiments are the numbered scripts in the repository root; they are meant to be read top to
+bottom. The numbering groups them: `0x` API probes, `1x` the 15–60 minute experiment, `2x` the tape
+experiment, `3x` the tape experiment on alts, `4x` the text test. Within an experiment: rebuild the
+inputs (optional) → price every state → evaluate.
+
+| read this | to check |
+|---|---|
+| `jev/wording_intraday.py`, `jev/wording_tape.py`, `jev/wording_text.py` | every word the model was told and asked — frozen before any outcome was seen |
+| `jev/buckets.py` | how a number becomes one of five levels |
+| `jev/tape_bars.py` | how raw trades become bars, features and forward returns (and that nothing looks ahead) |
+| `jev/scoring.py` | the trade rule, the hit rate, and the "same decisions at the wrong time" null |
+| `jev/client.py` | the API client and the response cache |
 
 ## Don't trust my cache? Re-price it yourself (~$1)
 
-Delete `data/jev_cache.sqlite`, set `TYPESAFE_API_KEY`, and run 03, 05 and 08 again. The model is not
+Delete `data/jev_cache.sqlite`, set `TYPESAFE_API_KEY`, and run `11_…`, `21_…` and `40_…` again. The model is not
 deterministic (identical requests differ by about ±0.02), so your table will differ in the second
-decimal and your trade count by a little; the conclusions will not. `01_probe_latency_determinism.py`
+decimal and your trade count by a little; the conclusions will not. `00_probe_latency_and_determinism.py`
 measures latency and determinism from your own location for about a cent.
 
 ## Don't trust my market data? Rebuild it from Binance and re-run the test
 
 ```bash
-python 07_build_tape_50tick.py              # raw trades -> 50-trade bars, ~180 MB streamed, ~3 min, no key
-python 09_eval_tape.py --rebuilt            # the tape test on the inputs you just built (they come out identical)
-python 10_build_tape_alts.py                # the alt tapes, ~460 MB streamed, ~10 min, no key
-python 11_eval_tape_alts.py --rebuilt
-python 02_build_t3_from_binance.py          # the 15-60 minute inputs, ~170 MB streamed, 10-20 min, no key
-python 04_eval_t3_scalping.py --rebuilt     # the same test on the inputs you just built
+python 20_tape_rebuild_inputs.py            # raw trades -> 50-trade bars, ~180 MB streamed, ~3 min, no key
+python 22_tape_evaluate.py --rebuilt        # the tape test on the inputs you just built (they come out identical)
+python 30_tape_alts_rebuild_inputs.py       # the alt tapes, ~460 MB streamed, ~10 min, no key
+python 31_tape_alts_evaluate.py --rebuilt
+python 10_intraday_rebuild_inputs.py        # the 15-60 minute inputs, ~170 MB streamed, 10-20 min, no key
+python 12_intraday_evaluate.py --rebuilt
 ```
 
 For the 15–60 minute test:
@@ -79,10 +102,10 @@ For the 15–60 minute test:
 **A data wrinkle, reported rather than hidden.** The shipped inputs were built from the archive as
 downloaded on 2026-07-29, before the test was designed. Binance has since *relabelled* the timestamps
 of rows from about April 2025 onward by −5 minutes (identical values, moved labels; every column moves
-together, so features and outcomes stay aligned with each other). Script 02 demonstrates this from
+together, so features and outcomes stay aligned with each other). `10_intraday_rebuild_inputs.py` demonstrates this from
 public data alone: **99.99% of the shipped outcomes and 99.96% of the shipped feature rows are
 reproduced** by the rebuild, at the same stamp through 2024 and at the stamp five minutes earlier
-afterwards (`results/02_build_t3_from_binance.txt`). A fresh rebuild therefore samples a 15-minute
+afterwards (`results/10_intraday_rebuild_inputs.txt`). A fresh rebuild therefore samples a 15-minute
 grid that is one bar off in the later period, which makes the replication an independent draw rather
 than a copy. Both runs say the same thing.
 
@@ -136,19 +159,28 @@ The rule fixed in advance needed the model to clear 4 bp on at least four of eig
 ## Files
 
 ```
-jev/states.py            frozen wording, 15-60 minute test and text test
-jev/states_tape.py       frozen wording, tape test
-jev/jev_client.py        ~100-line cached client (key only needed on a cache miss)
-data/t3_levels.parquet   bucketed features at 523,736 decision stamps
-data/t3_outcomes.parquet forward returns (bp), entry one bar late
-data/t3_table.parquet    the model's answers for all 15,625 states
-data/t5_tape_levels.parquet  298,787 tape decision bars: bucketed features + forward returns
-data/t5_table.parquet    the model's answers for all 15,625 tape states
-data/t6_tape_alts_levels.parquet  925,874 decision bars on ten symbols (mid-price proxy)
-data/announcement_titles.parquet, data/t4_triage_labels.parquet   text test
-data/jev_cache.sqlite    every model response (hash -> answers, tokens, latency)
-results/                 captured output of every script, incl. the replication on rebuilt data
-card/                    the image, and its HTML source
+check_headline_numbers.py            re-runs every experiment and checks each published number
+00_probe_latency_and_determinism.py  needs a key (one cent): latency, determinism, what moves the model's answer
+01_latency_from_cache.py             latency of every recorded call
+10_ / 11_ / 12_intraday_*.py         the 15-60 minute experiment: rebuild inputs / price all states / evaluate
+20_ / 21_ / 22_tape_*.py             the tape experiment (BTC, ETH): rebuild inputs / price all states / evaluate
+30_ / 31_tape_alts_*.py              the tape experiment on alts: rebuild inputs / evaluate
+40_text_triage.py                    the text test
+
+jev/                                 frozen wording, bucketing, bar building, scoring, API client
+
+data/intraday_levels.parquet         the six feature levels at 523,736 decision times (every 15 min, 6 coins)
+data/intraday_outcomes.parquet       what the price did next (bp), entering one bar late
+data/intraday_table.parquet          the model's answers for all 15,625 possible states
+data/tape_levels.parquet             298,787 one-second decision bars on BTC and ETH: levels + forward returns
+data/tape_alts_levels.parquet        925,874 decision bars on ten coins (mid-price estimate)
+data/tape_table.parquet              the model's answers for all 15,625 possible tape states
+data/announcement_titles.parquet     4,435 exchange announcement titles (the text test)
+data/jev_cache.sqlite                every model response: request hash -> answers, tokens, latency
+
+results/                             captured output of every script, including the replication on rebuilt data
+method/METHOD.md                     how each test was built, and the rules fixed in advance
+card/                                the summary image and its HTML source
 ```
 
 Not affiliated with TypeSafe or Binance. Model `jev-1.13.0`, September 2026. Not financial advice;

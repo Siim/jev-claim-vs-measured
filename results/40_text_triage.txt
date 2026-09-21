@@ -1,0 +1,34 @@
+titles                        4,435   (fresh API calls: 0)
+titles a regex can classify   1,313
+model accuracy on those       88.2%
+
+acting only when the model is confident:
+   confidence >= 0.5: keeps 1,308 of 1,313 titles (99.6%), accuracy 88.4%
+   confidence >= 0.8: keeps 1,145 of 1,313 titles (87.2%), accuracy 99.3%
+   confidence >= 0.9: keeps 1,098 of 1,313 titles (83.6%), accuracy 99.6%
+
+which way does it expect the price to move? (% of titles in each true class)
+model_direction        down  unclear     up
+regex_class                                
+monitoring_tag         35.0     55.0   10.0
+pair_change             1.0     99.0    0.0
+perp_delisting         84.0     16.0    0.0
+perp_launch             0.0     33.0   67.0
+risk_parameter_change   2.0     98.0    0.0
+spot_delisting         93.0      7.0    0.0
+spot_listing            0.0      0.0  100.0
+
+Several of the 'errors' are the REGEX being wrong: a title that ends a pre-market and lists
+a token (with a Seed Tag) is a listing, as the model said. The regex truth understates
+the model's accuracy.
+
+HEADLINE NUMBERS
+  titles = 4435
+  checkable_titles = 1313
+  accuracy_pct = 88.2
+  kept_at_0.5 = 1308
+  accuracy_pct_at_0.5 = 88.4
+  kept_at_0.8 = 1145
+  accuracy_pct_at_0.8 = 99.3
+  kept_at_0.9 = 1098
+  accuracy_pct_at_0.9 = 99.6

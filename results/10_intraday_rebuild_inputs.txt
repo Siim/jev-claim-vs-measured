@@ -1,0 +1,25 @@
+5,754 daily files to stream
+   1,000/5,754
+   2,000/5,754
+   3,000/5,754
+   4,000/5,754
+   5,000/5,754
+rows 1,656,372; files missing from the archive: 0
+wrote 523,843 rebuilt decisions -> now run: python 12_intraday_evaluate.py --rebuilt
+
+share of SHIPPED rows reproduced by the rebuild, by quarter:
+            outcome: same stamp %  outcome: 5 min earlier %  outcome: either %  levels: same stamp %  levels: 5 min earlier %  levels: either %
+ts                                                                                                                                             
+2024-01-01                 100.00                      0.01             100.00                100.00                    16.86            100.00
+2024-04-01                  71.83                     28.13              99.95                 75.98                    38.76             99.82
+2024-07-01                 100.00                      0.10             100.00                100.00                    16.24            100.00
+2024-10-01                 100.00                      0.00             100.00                100.00                    15.24            100.00
+2025-01-01                  90.02                      9.98              99.99                 91.44                    24.21             99.97
+2025-04-01                   0.03                    100.00             100.00                 15.64                    99.96             99.97
+2025-07-01                   0.03                    100.00             100.00                 15.20                    99.98             99.98
+2025-10-01                   0.01                    100.00             100.00                 16.55                   100.00            100.00
+2026-01-01                   0.00                    100.00             100.00                 16.58                   100.00            100.00
+2026-04-01                   7.51                     92.48              99.97                 22.07                    93.75             99.89
+
+OVERALL: outcomes reproduced 99.991%, all six levels reproduced 99.963%
+(levels can differ for a few weeks after the relabelling date, where trailing windows straddle it)
