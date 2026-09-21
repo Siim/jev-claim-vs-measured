@@ -1,0 +1,7 @@
+pandas>=2.0
+numpy
+pyarrow
+scikit-learn
+xgboost
+aiohttp
+requests

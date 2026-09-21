@@ -1,0 +1,5 @@
+rebuilt_*.parquet
+__pycache__/
+*.pyc
+.DS_Store
+*.sqlite-journal

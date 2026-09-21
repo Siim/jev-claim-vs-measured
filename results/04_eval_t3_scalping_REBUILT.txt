@@ -1,0 +1,24 @@
+inputs: data/rebuilt_t3_levels.parquet + data/rebuilt_t3_outcomes.parquet
+contracts ['BTC', 'ETH', 'XRP', 'BNB', 'DOGE', 'LTC']   decision stamps 523,441   2024-01-01 00:00:00 .. 2026-06-30 22:45:00
+|15m move| mean 24.5 bp   |60m move| mean 48.4 bp
+model's mean P(up 15m) 0.449, P(up 60m) 0.447   <->   price actually rose 50.2% / 50.5% of the time
+
+=== discrimination: AUC vs realised direction (0.500 = coin flip) ===
+    up15 -> fwd15: AUC 0.4825
+    up60 -> fwd60: AUC 0.4817
+   score -> fwd15: AUC 0.4876
+   score -> fwd60: AUC 0.4896
+
+=== the trade rule ===
+  fwd15 all          trades 298,437  hit rate 48.58%  GROSS -0.157 bp/trade (day-clustered t -1.63)  net of maker costs  -8.58  net of taker costs -10.66
+  fwd15 first half   trades 149,114  hit rate 48.55%  GROSS -0.238 bp/trade (day-clustered t -1.56)  net of maker costs  -8.66  net of taker costs -10.74
+  fwd15 second half  trades 149,323  hit rate 48.61%  GROSS -0.075 bp/trade (day-clustered t -0.70)  net of maker costs  -8.50  net of taker costs -10.58
+  fwd15 time-shift null: +0.002 +/- 0.074 bp   real -0.157   z -2.15
+  fwd60 all          trades 298,437  hit rate 48.64%  GROSS -0.324 bp/trade (day-clustered t -1.25)  net of maker costs  -8.74  net of taker costs -10.82
+  fwd60 first half   trades 149,114  hit rate 48.57%  GROSS -0.595 bp/trade (day-clustered t -1.41)  net of maker costs  -9.02  net of taker costs -11.10
+  fwd60 second half  trades 149,323  hit rate 48.71%  GROSS -0.053 bp/trade (day-clustered t -0.28)  net of maker costs  -8.47  net of taker costs -10.55
+  fwd60 time-shift null: -0.013 +/- 0.184 bp   real -0.324   z -1.69
+
+=== ceiling check: can ANY function of these six features scalp? (XGBoost fitted on the first half, read on the second) ===
+  fwd15: trade the top/bottom 10% of predictions -> GROSS -0.311 bp/trade   out-of-sample corr(pred, realised) -0.0052   (cost floor 8.42 bp)
+  fwd60: trade the top/bottom 10% of predictions -> GROSS -0.272 bp/trade   out-of-sample corr(pred, realised) -0.0021   (cost floor 8.42 bp)
