@@ -64,6 +64,21 @@ five minutes, which is a mark-price proxy, not a tradeable fill.
   on both symbols. Recorded expectation, also in advance: above 50% at one bar because trade-sign
   autocorrelation is real, no better than the one-line rule, and short of fees by 10x or more.
 
+## Tape test on alts (T6)
+
+- Symbols by rule, not by hand: the 523 crypto alt USDT perpetuals trading on 2026-09-21 (BTC, ETH,
+  stablecoins, index / equity / pre-market contracts excluded) ranked by 24-hour quote volume; ranks 1-4
+  (ZEC, SOL, AKE, XRP) and ranks 25, 50, 75, 100 (ONDO, ZIL, FLOCK, GUN). BTC and ETH re-run as reference.
+- Same five days, same six features, same 15,625-row table, same rule, same baselines: no new model calls,
+  so nothing could be tuned to these coins.
+- One change, forced by spreads: one tick is 2-3 bp on small alts, so last-trade prices bounce between bid
+  and ask. Every price is a mid proxy = mean of the last buyer-initiated and last seller-initiated trade;
+  their gap is the spread proxy, added once to the taker round trip. The proxy lags the true mid when one
+  side has not traded recently, which manufactures continuation: momentum-type numbers are upper bounds.
+- Pass bar fixed in advance: the model's gross > 4.0 bp/trade one bar late, on at least four of eight alts.
+  Recorded expectation: above 50% only where the tape is fast, below the one-line rule everywhere, and the
+  perfect-oracle bound WOULD exceed fees on alts - so that sentence is scoped to BTC and ETH.
+
 ## Text test (T4)
 
 4,435 unique Binance announcement titles since 2022. One request per title: a closed-set event
